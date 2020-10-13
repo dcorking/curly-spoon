@@ -25,3 +25,6 @@
 
 # Ignore the local postres datastore created by .envrc
 /postgres/
+
+# Ignore rspec output
+/spec/examples.txt
