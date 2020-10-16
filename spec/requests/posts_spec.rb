@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe "Posts", type: :request do
-  describe "GET /posts" do
+RSpec.describe 'Posts', type: :request do
+  describe 'GET /posts' do
     it 'succeeds' do
       get posts_path
       expect(response).to have_http_status(200)
@@ -13,7 +13,7 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  describe "POST /posts" do
+  describe 'POST /posts' do
     it 'succeeds' do
       post posts_path, params: { post: { title: 'Hello world!' } }
       expect(response).to have_http_status(201)
@@ -35,6 +35,26 @@ RSpec.describe "Posts", type: :request do
                                     'valid_from' => nil,
                                     'expires'=> nil,
                                 )
+    end
+  end
+
+  describe 'PUT /posts/{id}' do
+    it 'succeeds' do
+      post posts_path, params: { post: { title: 'Hello world!' } }
+      id = JSON.parse(response.body)['id']
+      put post_path(id), params:  { post: { title: 'Hello Bath!' } }
+      expect(response).to have_http_status(200)
+    end
+
+    it 'updates the post' do
+      post posts_path, params: { post: { title: 'Hello world!' } }
+      id = JSON.parse(response.body)['id']
+      get post_path(id)
+      expect(JSON.parse(response.body)['title']).to eq('Hello world!')
+      put post_path(id), params:  { post: { title: 'Hello Bath!' } }
+      expect(JSON.parse(response.body)['title']).to eq('Hello Bath!')
+      get post_path(id)
+      expect(JSON.parse(response.body)['title']).to eq('Hello Bath!')
     end
   end
 end
