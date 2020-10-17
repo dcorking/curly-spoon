@@ -4,7 +4,7 @@ RSpec.describe 'Posts', type: :request do
   describe 'GET /posts' do
     it 'succeeds' do
       get posts_path
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'returns an array of JSON objects' do
@@ -16,7 +16,7 @@ RSpec.describe 'Posts', type: :request do
   describe 'POST /posts' do
     it 'succeeds' do
       post posts_path, params: { post: { title: 'Hello world!' } }
-      expect(response).to have_http_status(201)
+      expect(response).to have_http_status(:created)
     end
 
     it 'adds a persistent post' do
@@ -43,7 +43,7 @@ RSpec.describe 'Posts', type: :request do
       post posts_path, params: { post: { title: 'Hello world!' } }
       id = JSON.parse(response.body)['id']
       put post_path(id), params:  { post: { title: 'Hello Bath!' } }
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'updates the post' do
@@ -55,6 +55,22 @@ RSpec.describe 'Posts', type: :request do
       expect(JSON.parse(response.body)['title']).to eq('Hello Bath!')
       get post_path(id)
       expect(JSON.parse(response.body)['title']).to eq('Hello Bath!')
+    end
+  end
+
+  describe 'DELETE /posts/{id}' do
+    it 'succeeds' do
+      post posts_path, params: { post: { title: 'Hello world!' } }
+      id = JSON.parse(response.body)['id']
+      delete post_path(id)
+      expect(response).to have_http_status(:no_content)
+    end
+
+    xit 'deletes the post' do
+      post posts_path, params: { post: { title: 'Hello world!' } }
+      id = JSON.parse(response.body)['id']
+      get post_path(id)
+      expect(JSON.parse(response.body)['title']).to eq('Hello world!')
     end
   end
 end
