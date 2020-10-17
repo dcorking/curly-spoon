@@ -66,11 +66,12 @@ RSpec.describe 'Posts', type: :request do
       expect(response).to have_http_status(:no_content)
     end
 
-    xit 'deletes the post' do
+    it 'deletes the post' do
       post posts_path, params: { post: { title: 'Hello world!' } }
       id = JSON.parse(response.body)['id']
+      delete post_path(id)
       get post_path(id)
-      expect(JSON.parse(response.body)['title']).to eq('Hello world!')
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

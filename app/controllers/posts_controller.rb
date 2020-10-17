@@ -10,7 +10,11 @@ class PostsController < ApplicationController
 
   # GET /posts/1
   def show
-    render json: @post
+    if @post
+      render json: @post
+    else
+      render json: nil, status: :not_found
+    end
   end
 
   # POST /posts
@@ -39,13 +43,15 @@ class PostsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_post
-      @post = Post.find(params[:id])
-    end
 
-    # Only allow a trusted parameter "white list" through.
-    def post_params
-      params.require(:post).permit(:title, :body, :expires, :valid_from)
-    end
+  def set_post
+    @post = Post.find(params[:id])
+  # return an error, rather than raise an exception, when no record
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
+  def post_params
+    params.require(:post).permit(:title, :body, :expires, :valid_from)
+  end
 end
