@@ -8,6 +8,13 @@ class PostsController < ApplicationController
     render json: @posts
   end
 
+  # GET /posts/expired
+  def expired
+    posts = Post.where('expires < ?', DateTime.now)
+
+    render json: posts
+  end
+
   # GET /posts/1
   def show
     if @post

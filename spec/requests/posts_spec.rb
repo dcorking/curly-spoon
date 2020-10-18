@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'timecop'
 
 RSpec.describe 'Posts', type: :request do
   describe 'GET /posts' do
@@ -72,6 +73,25 @@ RSpec.describe 'Posts', type: :request do
       delete post_path(id)
       get post_path(id)
       expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe 'GET /posts/expired' do
+    it 'succeeds' do
+      get expired_posts_path
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns expired posts' do
+      Timecop.freeze(Date.new(2020,3,1)) do
+        post posts_path, params: { post: { expires: '2020-02-28' }}
+
+        get expired_posts_path
+        posts = JSON.parse(response.body)
+
+        expect(posts.length).to eq 1
+        expect(DateTime.iso8601(posts[0]['expires'])).to eq DateTime.new(2020,2,28)
+      end
     end
   end
 end
