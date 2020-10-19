@@ -10,7 +10,7 @@ class PostsController < ApplicationController
 
   # GET /posts/expired
   def expired
-    posts = Post.where('expires < ?', DateTime.now)
+    posts = Post.expired
 
     render json: posts
   end
