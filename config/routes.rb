@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
   resources :posts do
-    get 'expired', on: :collection
+    collection do
+      get 'current'
+      get 'expired'
+    end
   end
 end

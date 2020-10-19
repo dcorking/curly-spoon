@@ -30,12 +30,12 @@ RSpec.describe 'Posts', type: :request do
     it 'returns the object and integer id' do
       post posts_path, params: { post: { title: 'Hello world!' } }
       expect(JSON.parse(response.body)). to match(
-                                    'id' => an_instance_of(Integer),
-                                    'title' => 'Hello world!',
-                                    'body' => nil,
-                                    'valid_from' => nil,
-                                    'expires'=> nil,
-                                )
+                                              'id' => an_instance_of(Integer),
+                                              'title' => 'Hello world!',
+                                              'body' => nil,
+                                              'valid_from' => nil,
+                                              'expires'=> nil,
+                                            )
     end
   end
 
@@ -91,6 +91,50 @@ RSpec.describe 'Posts', type: :request do
 
         expect(posts.length).to eq 1
         expect(DateTime.iso8601(posts[0]['expires'])).to eq DateTime.new(2020,2,28)
+      end
+    end
+  end
+
+  describe 'GET /posts/current' do
+    it 'succeeds' do
+      get current_posts_path
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'shows current posts' do
+      Timecop.freeze(Date.new(2020,3,1)) do
+        post posts_path, params: { post:
+                                    { valid_from: '2020-02-28',
+                                      expires: '2020-03-02' } }
+
+        get current_posts_path
+        posts = JSON.parse(response.body)
+        expect(posts.length).to eq(1)
+      end
+    end
+
+    it 'omits expired posts' do
+      Timecop.freeze(DateTime.new(2020,3,1,0,1)) do
+        post posts_path, params: { post:
+                                    { valid_from: '2020-02-28',
+                                      expires: '2020-03-01T00:00Z' } }
+
+        get current_posts_path
+        posts = JSON.parse(response.body)
+        expect(posts.length).to eq(0)
+      end
+    end
+
+    it 'omits posts that are not yet valid' do
+      Timecop.freeze(DateTime.new(2020,2,28,23,59)) do
+        post posts_path, params: { post:
+                                    { valid_from: '2020-03-01T00:00Z',
+                                      expires: '2020-03-02' } }
+
+        get current_posts_path
+        posts = JSON.parse(response.body)
+        expect(posts.length).to eq(0)
       end
     end
   end

@@ -15,6 +15,12 @@ class PostsController < ApplicationController
     render json: posts
   end
 
+  # GET /posts/current
+  def current
+    posts = Post.current
+    render json: posts
+  end
+
   # GET /posts/1
   def show
     if @post
