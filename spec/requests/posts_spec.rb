@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'timecop'
 
@@ -23,19 +25,19 @@ RSpec.describe 'Posts', type: :request do
     it 'adds a persistent post' do
       expect do
         post posts_path, params: { post: { title: 'Hello world!' } }
-      end.to change {Post.count}.by(1)
+      end.to change { Post.count }.by(1)
       expect(Post.last.title).to eq('Hello world!')
     end
 
     it 'returns the object and integer id' do
       post posts_path, params: { post: { title: 'Hello world!' } }
       expect(JSON.parse(response.body)). to match(
-                                              'id' => an_instance_of(Integer),
-                                              'title' => 'Hello world!',
-                                              'body' => nil,
-                                              'valid_from' => nil,
-                                              'expires'=> nil,
-                                            )
+        'id' => an_instance_of(Integer),
+        'title' => 'Hello world!',
+        'body' => nil,
+        'valid_from' => nil,
+        'expires' => nil
+      )
     end
   end
 
@@ -43,7 +45,7 @@ RSpec.describe 'Posts', type: :request do
     it 'succeeds' do
       post posts_path, params: { post: { title: 'Hello world!' } }
       id = JSON.parse(response.body)['id']
-      put post_path(id), params:  { post: { title: 'Hello Bath!' } }
+      put post_path(id), params: { post: { title: 'Hello Bath!' } }
       expect(response).to have_http_status(:ok)
     end
 
@@ -52,7 +54,7 @@ RSpec.describe 'Posts', type: :request do
       id = JSON.parse(response.body)['id']
       get post_path(id)
       expect(JSON.parse(response.body)['title']).to eq('Hello world!')
-      put post_path(id), params:  { post: { title: 'Hello Bath!' } }
+      put post_path(id), params: { post: { title: 'Hello Bath!' } }
       expect(JSON.parse(response.body)['title']).to eq('Hello Bath!')
       get post_path(id)
       expect(JSON.parse(response.body)['title']).to eq('Hello Bath!')
@@ -83,14 +85,14 @@ RSpec.describe 'Posts', type: :request do
     end
 
     it 'returns expired posts' do
-      Timecop.freeze(Date.new(2020,3,1)) do
-        post posts_path, params: { post: { expires: '2020-02-28' }}
+      Timecop.freeze(Date.new(2020, 3, 1)) do
+        post posts_path, params: { post: { expires: '2020-02-28' } }
 
         get expired_posts_path
         posts = JSON.parse(response.body)
 
         expect(posts.length).to eq 1
-        expect(DateTime.iso8601(posts[0]['expires'])).to eq DateTime.new(2020,2,28)
+        expect(DateTime.iso8601(posts[0]['expires'])).to eq DateTime.new(2020, 2, 28)
       end
     end
   end
@@ -103,7 +105,7 @@ RSpec.describe 'Posts', type: :request do
     end
 
     it 'shows current posts' do
-      Timecop.freeze(Date.new(2020,3,1)) do
+      Timecop.freeze(Date.new(2020, 3, 1)) do
         post posts_path, params: { post:
                                     { valid_from: '2020-02-28',
                                       expires: '2020-03-02' } }
@@ -115,7 +117,7 @@ RSpec.describe 'Posts', type: :request do
     end
 
     it 'omits expired posts' do
-      Timecop.freeze(DateTime.new(2020,3,1,0,1)) do
+      Timecop.freeze(DateTime.new(2020, 3, 1, 0, 1)) do
         post posts_path, params: { post:
                                     { valid_from: '2020-02-28',
                                       expires: '2020-03-01T00:00Z' } }
@@ -127,7 +129,7 @@ RSpec.describe 'Posts', type: :request do
     end
 
     it 'omits posts that are not yet valid' do
-      Timecop.freeze(DateTime.new(2020,2,28,23,59)) do
+      Timecop.freeze(DateTime.new(2020, 2, 28, 23, 59)) do
         post posts_path, params: { post:
                                     { valid_from: '2020-03-01T00:00Z',
                                       expires: '2020-03-02' } }
